@@ -1,14 +1,25 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase"; // Ensure this path is correct based on your project structure
 
 function Signup() {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
+    const navigate = useNavigate();
+    const [error, setError] = useState(null);
 
-    const handleSubmitButton = (e) => {
+    const handleSubmitButton = async (e) => {
         e.preventDefault();
-        console.log(name, password, email);
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            console.log("User signed up:", userCredential.user);
+            navigate("/Login"); // Redirect to login page after successful signup
+        } catch (error) {
+            console.error("Error signing up:", error);
+            setError(error.message);
+        }
     };
 
     return (
@@ -62,6 +73,7 @@ function Signup() {
                     </div>
                 </div>
             </div>
+            {error && <div className="alert alert-danger">{error}</div>}
             <button className="btn btn-primary" type="submit">
                 Submit form
             </button>
